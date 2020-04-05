@@ -6,12 +6,8 @@
 
 #define COUNT_ENABLE            TR0 = 1
 #define COUNT_DISABLE           TR0 = 0
-#define TIM0_CNTR_CLEAR         TH0 = 0;TL0 = 0
+#define TIM0_CNTR_CLEAR         TH0 = 0;TL0 = 0;TF0 = 0;
 
-#define PWM_GRADE				10U		// PWM×Ü¹² 10¼¶
-
-extern uint32_t g_Time_1ms;
-extern uint32_t g_Time_1s;
 extern uint16_t g_Duty_Cycle;
 
 void SoftwareDelay_ms( uint32_t Cnt );

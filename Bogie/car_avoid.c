@@ -1,4 +1,5 @@
 #include "car_avoid.h"
+#include "bsp.h"
 #include "bsp_time.h"
 #include "bsp_uart.h"
 #include "car_drv.h"
@@ -6,9 +7,8 @@
 #include "ultrasound_wave.h"
 
 
-//#define _UART_DEBUG
-
-uint8_t g_Servo_Angle = CENTER;	// 舵机角度设置
+uint8_t g_Servo_Count = 0;		// 舵机方波次数
+xdata uint8_t g_Servo_Angle = CENTER;	// 舵机角度设置
 uint16_t g_Servo_Time = 0;		// 舵机计时
 
 /************************************************
@@ -19,27 +19,26 @@ uint16_t g_Servo_Time = 0;		// 舵机计时
 *************************************************/
 void Servo_Control( uint8_t Time )
 {
-	uint8_t h,l,temp;
-	
-	g_Servo_Time = 0;
+
+#if 1
+	g_Servo_Count = 5;
+	g_Servo_Time = 1;
 	g_Servo_Angle = Time;
 	
-	h = TH0;
-	l = TL0;
-	temp = ET0;	
+	SERVO(LOW);
+	
 	TF0 = 0;
 	TH0 = 0xFF;
-	TL0 = 0x9C;				// 装初值	
+	TL0 = 0x9C;				// 装初值 100us
 	ET0 = 1;				// 开定时器 0中断
 	COUNT_ENABLE;
-	SoftwareDelay_ms(80);
-	COUNT_DISABLE;
+	while(g_Servo_Time)
+		continue;
 	TIM0_CNTR_CLEAR;
-	TF0 = 0;
-	TH0 = h;
-	TL0 = l;
-//	ET0 = 0;
-	ET0 = temp;
+	
+	SERVO(HIGH);
+	
+#endif
 }
 
 /************************************************
@@ -53,12 +52,9 @@ bit Servo_Deal(void)
 	uint8_t temp = 0;
 	uint16_t l_dist,r_dist;
 	static uint8_t direction = 0;	// 死角标志
-	
-	EX1 = 0;				// 失能外部中断 1
-	g_Duty_Cycle = 4;		// 加大扭力
-	
+			
 	Servo_Control(LEFT_CORNER);		// 左边测距
-//	UART_Printf("left:");
+	DUBUG_PRINTF(">>>>> left:");
 	l_dist = UT_Ranging();
 	SoftwareDelay_ms(600);
 	
@@ -66,15 +62,19 @@ bit Servo_Deal(void)
 	SoftwareDelay_ms(600);
 	
 	Servo_Control(RIGHT_CORNER);	// 右边测距
-//	UART_Printf("right:");
+	
 	r_dist = UT_Ranging();
 	SoftwareDelay_ms(600);
 	
 	Servo_Control(CENTER);			// 角度复位
+	SoftwareDelay_ms(600);
+	
+#if 1
+	g_Duty_Cycle = PWM_CLASS - 2;	// 加大扭力
 
 	g_Run_flag = 0;
 	g_Stop_flag = 0;
-
+	
 	if(!direction)
 	{
 		if(l_dist >= r_dist)
@@ -109,7 +109,7 @@ bit Servo_Deal(void)
 	
 	SoftwareDelay_ms(300);
 	g_Stop_flag = 1;
-	Servo_Control(CENTER);
+	DUBUG_PRINTF(">>>>> Current:");
 	temp = UT_Ranging();
 	
 	if(!INFRARED_LEFT || !INFRARED_RIGHT)
@@ -143,9 +143,10 @@ bit Servo_Deal(void)
 			temp = 1;
 		}
 	}
-		
+
+#endif
+	
 	g_Duty_Cycle = PWM_CLASS;
-	EX1 = 1;				// 使能外部中断 1	
 	
 	return temp;
 }
@@ -160,69 +161,45 @@ bit Obstacle_Deal(void)
 {
 	uint8_t temp = 0;
 	uint8_t UT_distance[3] = {0};
-	
-	if(g_UT_Receive_flag)
+
+	DUBUG_PRINTF(">>>>> Distance:");
+	g_UT_Distance = UT_Ranging();
+
+	if(DISTANCE_Min < g_UT_Distance)
 	{
-		g_UT_Receive_flag = 0;
+		/* 正常运行 */
+		g_Run_flag = 1;
+		g_Stop_flag = 0;
+		g_Left_flag = 0;
+		g_Right_flag = 0;
 		
-		g_UT_Distance = g_UT_Distance*(340L >> 1) / 10000;	// 距离	
-
-		if(DISTANCE_Min < g_UT_Distance)
-		{
-			/* 正常运行 */
-			g_Run_flag = 1;
-			g_Stop_flag = 0;
-			g_Left_flag = 0;
-			g_Right_flag = 0;
-			
-			temp = 0;
-		}
-		else
-		{
-			g_Run_flag = 0;
-			
-			if(g_UT_Distance < 15)						// 超出极限距离
-			{
-				if(!INFRARED_QUEEN)
-				{
-					/* 后退 */
-					g_Stop_flag = 0;
-					g_Left_flag = 0;
-					g_Right_flag = 0;
-					
-					SoftwareDelay_ms(300);
-				}
-			}
-			
-			g_Stop_flag = 1;					// 停止			
-			
-			temp = 1;
-		}
-		
-		/* LCD处理显示 */
-		g_UT_Buf[0] = (g_UT_Distance / 100) % 10;	// m
-		g_UT_Buf[1] = (g_UT_Distance / 10) % 10;	// dm
-		g_UT_Buf[2] = (g_UT_Distance) % 10;			// cm	
-
-		UT_distance[0] = g_UT_Buf[0] + '0';	
-		UT_distance[1] = g_UT_Buf[1] + '0';			
-		UT_distance[2] = g_UT_Buf[2] + '0';				
-
-#ifdef _UART_DEBUG						
-		UART_Printf("dist:");
-		UART_SendString(UT_distance, 3);	
-		UART_Printf("cm");
-		UART_SendByte(0x0D);		// '\r'
-		UART_SendByte(0x0A);		// '\n'
-	
-#endif /* _UART_DEBUG */
-		
-		Lcd_Show_Str(UT_distance, 10, 1, 3);
+		temp = 0;
 	}
-	
+	else
+	{
+		g_Run_flag = 0;
+		
+		if(g_UT_Distance <= 15)				// 超出极限距离
+		{
+			if(INFRARED_QUEEN)				// 判断尾部障碍物
+			{
+				/* 后退 */
+				g_Stop_flag = 0;
+				g_Left_flag = 0;
+				g_Right_flag = 0;
+				
+				SoftwareDelay_ms(550);
+			}
+		}
+		
+		g_Stop_flag = 1;					// 停止			
+		
+		temp = 1;
+	}
+
 	if(!INFRARED_LEFT || !INFRARED_RIGHT)		// 红外辅助监控
 	{
-		if(!INFRARED_QUEEN)
+		if(INFRARED_QUEEN)						// 判断尾部障碍物
 		{
 			/* 后退 */
 			g_Run_flag = 0;
@@ -230,14 +207,34 @@ bit Obstacle_Deal(void)
 			g_Left_flag = 0;
 			g_Right_flag = 0;
 			
-			SoftwareDelay_ms(650);
+			SoftwareDelay_ms(400);
 		}
 		g_Stop_flag = 1;
 		
 		temp = 1;
 	}
-	
+
 	return temp;
+}
+
+/************************************************
+函数名称 ： Obstacle_Task
+功    能 ： 避障任务
+参    数 ： 无
+返 回 值 ： 无
+*************************************************/
+void Obstacle_Task(void)
+{
+	if(Obstacle_Deal())
+	{
+		while(Servo_Deal())
+		{
+			if(g_Key_Down)
+			{
+				return;
+			}
+		}
+	}			
 }
 
 

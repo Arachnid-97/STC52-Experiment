@@ -93,12 +93,12 @@ static bit Data_Verify( uint8_t *Buf )
 }
 
 /************************************************
-函数名称 ： Control_Deal
+函数名称 ： Control_Task
 功    能 ： 远程控制处理
 参    数 ： 无
 返 回 值 ： 无
 *************************************************/
-void Control_Deal(void)
+void Control_Task(void)
 {
 	if(g_Frame_flag)
 	{

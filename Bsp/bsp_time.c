@@ -6,8 +6,6 @@
 #include "ultrasound_wave.h"
 
 
-uint32_t g_Time_1ms = 0;
-uint32_t g_Time_1s = 0;
 uint16_t g_Duty_Cycle = 0;			// PWM占空比
 
 /************************************************
@@ -19,11 +17,12 @@ uint16_t g_Duty_Cycle = 0;			// PWM占空比
 void SoftwareDelay_ms( uint32_t Cnt )
 {
     uint8_t i,j;
+	
     while(Cnt--)
     {
         for(i = 2;i > 0;i--)
 			for(j = 43;j > 0;j--)
-				;
+				continue;
     }
 }
 
@@ -36,6 +35,7 @@ void SoftwareDelay_ms( uint32_t Cnt )
 void SoftwareDelay_5us( uint32_t Cnt )
 {
     uint8_t i;
+	
     while(Cnt--)
     {
         for(i = 2;i > 0;i--);
@@ -94,12 +94,12 @@ uint16_t TIM0_GetCounter(void)
 	tmpcnt = (uint16_t)(tmpcntrl);
 	tmpcnt |= (uint16_t)((uint16_t)tmpcntrh << 8);
 
-	return ((uint16_t)tmpcnt);
+	return tmpcnt;
 }
 
 /************************************************
 函数名称 ： Time0_Config
-功    能 ： 定时器 0初始化
+功    能 ： 定时器 0初始化（超声波计时）
 参    数 ： 无
 返 回 值 ： 无
 *************************************************/
@@ -108,9 +108,8 @@ void Time0_Config(void)
 	TMOD |= 0x01;			// 工作方式一
 	TH0 = 0;
 	TL0 = 0;				// 装初值
-	IPH &= ~0x02;
-	PT0 = 1;				// 优先级 1	
-//	ET0 = 1;				// 开定时器 0中断
+	IPH |= 0x02;
+	PT0 = 0;				// 优先级 2
 }
 
 /************************************************
@@ -134,7 +133,7 @@ void Time1_Config(void)
 
 /************************************************
 函数名称 ： Time2_Config
-功    能 ： 定时器 2初始化
+功    能 ： 定时器 2初始化（系统定时扫描）
 参    数 ： 无
 返 回 值 ： 无
 *************************************************/
@@ -143,15 +142,15 @@ void Time2_Config(void)
 	RCLK = 0;			
 	TCLK = 0;
 	CP_RL2 = 0;				// 16位自动重装模式
+	C_T2 = 0;				// 作内部定时器
 	TH2 = 0xFC;
 	TL2 = 0x18;				// 装初值
 	RCAP2H = 0xFC;
 	RCAP2L = 0x18;			// 重装值(1ms)
-//	RCAP2H = 0xFE;
-//	RCAP2L = 0x0C;			// 重装值(0.5ms)	
-	C_T2 = 0;				// 作内部定时器
-	IPH |= 0x20;
-	PT2 = 1;				// 优先级 3
+//	RCAP2H = 0xF8;
+//	RCAP2L = 0x30;			// 重装值(2ms)	
+	IPH &= ~0x20;
+	PT2 = 1;				// 优先级 1
 	ET2 = 1;				// 开定时器 2中断	
 	TR2 = 1;				// 开定时
 }
@@ -164,23 +163,25 @@ void Time2_Config(void)
 *************************************************/
 void Timer0_ISR(void)	interrupt 1
 {
-	TF0 = 0;
 	TH0 = 0xFF;
-	TL0 = 0x9C;				// 装初值
-	
+	TL0 = 0x9C;				// 装初值，100计时量
+
 	g_Servo_Time++;
-	if(g_Servo_Time <= g_Servo_Angle)
+	g_Servo_Time <= g_Servo_Angle ? SERVO(HIGH):SERVO(LOW);
+	if(g_Servo_Time > 200)	// 舵机 50Hz频率
 	{
-		SERVO(HIGH);
+		g_Servo_Count--;
+		if(!g_Servo_Count)
+		{
+			ET0 = 0;			// 关中断
+			COUNT_DISABLE;
+			g_Servo_Time = 0;
+		}
+		else
+		{
+			g_Servo_Time = 1;
+		}
 	}
-	else
-	{
-		SERVO(LOW);
-	}
-	if(g_Servo_Time >= 200)
-	{
-		g_Servo_Time = 0;
-	}	
 }
 
 /************************************************
@@ -191,7 +192,6 @@ void Timer0_ISR(void)	interrupt 1
 *************************************************/
 void Timer1_ISR(void)	interrupt 3
 {	
-	TF1 = 0;
 	TH1 = 0xFF;
 	TL1 = 0x9C;				// 装初值	
 }
@@ -206,38 +206,24 @@ void Timer2_ISR(void)	interrupt 5
 {
 	static uint8_t PWM_cnt = 0;
 	
-	TF2 = 0;
-
-	g_Time_1ms++;
-	if(g_Time_1ms >= 1000)
+	if(g_UT_Time) 
 	{
-		g_Time_1ms = 0;
-//		g_Time_1s++;
-//		if(g_Time_1s > 1000)
-//		{
-//			g_Time_1s = 0;
-//		}
-		if(g_UT_Time) 
-		{
-			g_UT_Time--;
-		}
-		else
-		{
-			if(g_UT_Wait_flag)
-			{
-				g_UT_Wait_flag = 0;		// 超时清零
-			}
-		}
+		g_UT_Time--;
 	}
 	if(!KEY5 && !g_Key_Down)
 	{
 		g_Key_time++;
-		if(g_Key_time > 30)					// 消抖
+		if(g_Key_time >= 20)		// 消抖
 		{
 			g_Key_time = 0;
 			g_Key_Down = 1;
 		}
 	}
+	else
+	{
+		g_Key_time = 0;
+	}
+	
 	if(g_Uart_time)
 	{
 		g_Uart_time--;
@@ -258,7 +244,9 @@ void Timer2_ISR(void)	interrupt 5
 	}
 	PWM_cnt++;
 	
-//	P2_1 ^= 1;	
+//	P2_1 ^= 1;
+	
+	TF2 = 0;				// 必须由软件清除
 }
 
 /*------------------------------- END OF FILE -------------------------------*/

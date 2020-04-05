@@ -35,12 +35,12 @@ void Right_Dispose(void)
 }
 
 /************************************************
-函数名称 ： Infrared_Deal
+函数名称 ： Infrared_Task
 功    能 ： 红外处理
 参    数 ： 无
 返 回 值 ： 无
 *************************************************/
-void Infrared_Deal(void)
+void Infrared_Task(void)
 {
 	if(!TRACE_LEFT && TRACE_CENTRE && !TRACE_RIGHT)
 	{

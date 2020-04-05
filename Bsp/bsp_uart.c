@@ -3,19 +3,21 @@
 
 #define TIMES_THE_SPEED							// 波特率倍速
 
-bit g_Receiving_flag = 0;						// 串口接收标志
+#define BAUDRATE	4800						// 波特率设置     支持的波特率：1200,2400,4800,9600,19200,38400,57600,115200
+
+
 bit g_Frame_flag = 0;							// 一帧完成标志
-uint8_t g_ReceiveBuf[MAX_L] = {0};				// 串口接收暂存缓冲区
-uint16_t g_RxCnt = 0;							// 串口接收数据个数
+xdata uint8_t g_ReceiveBuf[MAX_L] = {0};		// 串口接收暂存缓冲区
+xdata uint16_t g_RxCnt = 0;						// 串口接收数据个数
 uint16_t g_Uart_time = 0;						// 串口计时
 
 /************************************************
 函数名称 ： UART_Timer1_Config
 功    能 ： UART配置（用定时器1溢出作为波特率时钟源）
-参    数 ： Baudrate ---- 波特率
+参    数 ： 无
 返 回 值 ： 无
 *************************************************/
-void UART_Timer1_Config( uint32_t Baudrate )
+void UART_Timer1_Config(void)
 {
 	TMOD &= 0x0F;					// 清除定时器1模式位	
 	TMOD |= 0x20;					// 模式2 --- 8位自动重装
@@ -25,10 +27,10 @@ void UART_Timer1_Config( uint32_t Baudrate )
 	
 #ifdef TIMES_THE_SPEED
 	PCON |= 0x80;					// 波特率加倍
-	TL1 = -(FOSC/12/16/Baudrate);	// 装初值
+	TL1 = -(FOSC/12/16/BAUDRATE);	// 装初值
 	
 #else
-	TL1 = -(FOSC/12/32/Baudrate);	// 装初值
+	TL1 = -(FOSC/12/32/BAUDRATE);	// 装初值
 	
 #endif /* TIMES_THE_SPEED */
 	TH1 = TL1;	
@@ -113,21 +115,15 @@ void UART_ISR(void) interrupt 4
 	{
 		temp = UART_Receive();
 		
-		g_Receiving_flag = 1;
-		
 		if(!g_Frame_flag)					// 判断帧处理完成与否
 		{
 			g_ReceiveBuf[g_RxCnt] = temp;	
 			g_RxCnt++;
 			if(g_RxCnt >= MAX_L)
 			{
-				g_Receiving_flag = 0;
 				g_RxCnt = 0;				//为了防止数组溢出
 			}
 			g_Uart_time = 40;				//40ms(接收超时判定)
-//			TH0 = 0x2F;
-//			TL0 = 0xAB;						//40ms(接收超时判定)
-//			set_TR0;
 		}				
 	}
 }

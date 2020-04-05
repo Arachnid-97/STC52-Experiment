@@ -1,7 +1,7 @@
 #include "bsp.h"
 
 
-uint8_t g_Key_Down = 0;
+xdata uint8_t g_Key_Down = 0;
 uint8_t g_Key_time = 0;
 
 /************************************************
@@ -23,10 +23,16 @@ void Clk_Config(void)
 *************************************************/
 void GPIO_Config(void)
 {
+	P1_0 = 0;
+	P1_1 = 0;
+	P1_2 = 0;
+	P1_3 = 0;
 	P1_4 = 1;
 	P1_5 = 1;
 	P1_6 = 1;
 	P1_7 = 1;
+//	P1 = 0x00;
+	
 //	P2_0 = 0;
 }
 

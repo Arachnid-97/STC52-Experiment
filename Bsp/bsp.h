@@ -24,7 +24,7 @@
 /* ·äÃùÆ÷ */
 #define BUZZER				P2_1
 
-extern uint8_t g_Key_Down;
+extern xdata uint8_t g_Key_Down;
 extern uint8_t g_Key_time;
 
 void Clk_Config(void);

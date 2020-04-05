@@ -4,7 +4,7 @@
 
 #include "reg52.h"
 
-void Control_Deal(void);
+void Control_Task(void);
 
 
 #endif /* __CAR_REMOTE_H */

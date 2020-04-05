@@ -30,7 +30,7 @@ extern bit g_Right_Adjust_flag;
 
 void Left_Dispose(void);
 void Right_Dispose(void);
-void Infrared_Deal(void);
+void Infrared_Task(void);
 
 
 #endif /* __CAT_TRACKING_H */

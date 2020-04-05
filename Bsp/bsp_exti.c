@@ -21,5 +21,5 @@ void INT0_ISR(void)	interrupt 0
 *************************************************/
 void INT1_ISR(void)	interrupt 2
 {
-	UT_Receive();
+
 }

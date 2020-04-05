@@ -27,21 +27,23 @@
 
 /* 舵机 */
 #define SERVO(x)			(P2_0 = x)	// 舵机控制
-#define CENTER				11			// 90度
+#define CENTER				14			// 90度
 #define LEFT_CORNER			25			// 0度
-#define RIGHT_CORNER		4			// 180度
-#define TOP_LEFT_CORNER		20			// 45度
-#define TOP_RIGHT_CORNER	10			// 135度
+#define RIGHT_CORNER		6			// 180度
+#define TOP_LEFT_CORNER		17			// 45度
+#define TOP_RIGHT_CORNER	9			// 135度
 
 #define DISTANCE_MAX		500
-#define DISTANCE_Min		25
+#define DISTANCE_Min		20
 
-extern uint8_t g_Servo_Angle;
+extern uint8_t g_Servo_Count;
+extern xdata uint8_t g_Servo_Angle;
 extern uint16_t g_Servo_Time;
 
 void Servo_Control( uint8_t Time );
 bit Servo_Deal(void);
 bit Obstacle_Deal(void);
+void Obstacle_Task(void);
 
 
 #endif /* __CAT_AVOID_H */

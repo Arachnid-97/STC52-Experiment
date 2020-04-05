@@ -27,6 +27,7 @@
 #define MOTOR_OUT4(x)		(P1_7 = x)
 
 #define PWM_CLASS			6
+#define PWM_GRADE			10		// PWM×Ü¹² 10¼¶
 
 extern bit g_Run_flag;
 extern bit g_Stop_flag;
