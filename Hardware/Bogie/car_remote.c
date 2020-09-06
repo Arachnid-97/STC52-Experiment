@@ -131,8 +131,8 @@ void Control_Task(void)
 						break;
 				}
 			}
-			g_RxCnt = 0;
 		}
+		g_RxCnt = 0;
 		g_Frame_flag = 0;
 	}
 }

@@ -8,7 +8,7 @@
   <Extensions>
     <cExt>*.c</cExt>
     <aExt>*.s*; *.src; *.a*</aExt>
-    <oExt>*.obj</oExt>
+    <oExt>*.obj; *.o</oExt>
     <lExt>*.lib</lExt>
     <tExt>*.txt; *.h; *.inc</tExt>
     <pExt>*.plm</pExt>
@@ -100,6 +100,9 @@
         <tRSysVw>1</tRSysVw>
         <sRunDeb>0</sRunDeb>
         <sLrtime>0</sLrtime>
+        <bEvRecOn>1</bEvRecOn>
+        <bSchkAxf>0</bSchkAxf>
+        <bTchkAxf>0</bTchkAxf>
         <nTsel>0</nTsel>
         <sDll></sDll>
         <sDllPa></sDllPa>
@@ -143,7 +146,7 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>Bogie\car_avoid.c</Filename>
+          <Filename>C:\Users\liziyuan\Desktop\Experiment（c51）\Project\RVC51(uv5)\Bogie\car_avoid.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\unnamed\CAR_AVOID\208</Expression>
         </Bp>
@@ -180,9 +183,16 @@
       <LintExecutable></LintExecutable>
       <LintConfigFile></LintConfigFile>
       <bLintAuto>0</bLintAuto>
-      <Lin2Executable></Lin2Executable>
-      <Lin2ConfigFile></Lin2ConfigFile>
-      <bLin2Auto>0</bLin2Auto>
+      <bAutoGenD>0</bAutoGenD>
+      <LntExFlags>0</LntExFlags>
+      <pMisraName></pMisraName>
+      <pszMrule></pszMrule>
+      <pSingCmds></pSingCmds>
+      <pMultCmds></pMultCmds>
+      <pMisraNamep></pMisraNamep>
+      <pszMrulep></pszMrulep>
+      <pSingCmdsp></pSingCmdsp>
+      <pMultCmdsp></pMultCmdsp>
     </TargetOption>
   </Target>
 
@@ -295,7 +305,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\Nixie_tube\nixie_drv.c</PathWithFileName>
+      <PathWithFileName>..\..\Hardware\Nixie_tube\nixie_drv.c</PathWithFileName>
       <FilenameWithoutPath>nixie_drv.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -315,7 +325,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\Lcd1602\lcd1602_drv.c</PathWithFileName>
+      <PathWithFileName>..\..\Hardware\Lcd1602\lcd1602_drv.c</PathWithFileName>
       <FilenameWithoutPath>lcd1602_drv.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -335,7 +345,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\Ultrasound\ultrasound_wave.c</PathWithFileName>
+      <PathWithFileName>..\..\Hardware\Ultrasound\ultrasound_wave.c</PathWithFileName>
       <FilenameWithoutPath>ultrasound_wave.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -355,8 +365,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\Bogie\car_drv.c</PathWithFileName>
-      <FilenameWithoutPath>car_drv.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\Hardware\Bogie\car_avoid.c</PathWithFileName>
+      <FilenameWithoutPath>car_avoid.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -367,8 +377,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\Bogie\car_avoid.c</PathWithFileName>
-      <FilenameWithoutPath>car_avoid.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\Hardware\Bogie\car_drv.c</PathWithFileName>
+      <FilenameWithoutPath>car_drv.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -379,7 +389,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\Bogie\car_remote.c</PathWithFileName>
+      <PathWithFileName>..\..\Hardware\Bogie\car_remote.c</PathWithFileName>
       <FilenameWithoutPath>car_remote.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -391,7 +401,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\Bogie\car_tracking.c</PathWithFileName>
+      <PathWithFileName>..\..\Hardware\Bogie\car_tracking.c</PathWithFileName>
       <FilenameWithoutPath>car_tracking.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>

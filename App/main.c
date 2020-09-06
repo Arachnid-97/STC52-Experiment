@@ -3,7 +3,7 @@
 #include "bsp_time.h"
 #include "bsp_exti.h"
 #include "bsp_uart.h"
-//#include "nixie_drv.h"
+#include "nixie_drv.h"
 #include "lcd1602_drv.h"
 #include "ultrasound_wave.h"
 #include "car_drv.h"
@@ -35,8 +35,8 @@ void System_Start(void)
 	Lcd_Printf("Mode:", 0, 0);	
 	Lcd_Printf("Empty", 7, 0);
 
-//	UART_Printf("Welcome main\n");
-	
+	DUBUG_PRINTF("Welcome main\n");
+		
 	set_EA;
 }
 
